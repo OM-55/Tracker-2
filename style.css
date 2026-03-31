@@ -2609,8 +2609,11 @@ h3 {
         padding: 1.2rem !important;
     }
     .toggle-btn {
-        font-size: 1.6rem;
-    }
+    padding: 0 !important;
+    height: 20px;
+    width: 20px;
+    font-size: 14px;
+}
 }
 
 @media (min-width: 1024px) {
@@ -2696,4 +2699,42 @@ h3 {
 @keyframes slideDown {
     from { transform: translateY(-10px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
+}
+.view {
+    width: 100% !important;
+    padding: 10px !important;
+}
+
+.dashboard-card,
+.glass-card {
+    width: 100% !important;
+    margin: 0 0 1rem 0 !important;
+}
+
+html, body {
+    overflow-x: hidden;
+}
+
+.dashboard-card {
+    padding: 0.8rem !important;
+}
+
+.habit-card-v2 {
+    padding: 1rem !important;
+}
+#fab-add {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    background: #6c63ff;
+    color: white;
+    font-size: 28px;
+    border: none;
+    z-index: 999;
+}
+body > * {
+    max-width: 100vw;
 }

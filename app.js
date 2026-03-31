@@ -2014,5 +2014,28 @@ function initToggleButtons() {
         };
     });
 }
+document.addEventListener("DOMContentLoaded", () => {
+    renderDashboard();
+});
+
+function handleAdd() {
+    const currentView = document.querySelector('.view.active')?.id;
+
+    if (currentView === 'tasks-view') {
+        openTaskModal();
+    } 
+    else if (currentView === 'reminders-view') {
+        openReminderModal();
+    } 
+    else if (currentView === 'attendance-view') {
+        openClassModal();
+    } 
+    else if (currentView === 'expiry-view') {
+        openExpiryModal();
+    } 
+    else {
+        alert("Add not available here");
+    }
+}
 
 // End of app script
