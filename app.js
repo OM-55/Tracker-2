@@ -104,15 +104,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const todayIndex = new Date().getDay();
     selectedDay = (todayIndex >= 1 && todayIndex <= 5) ? dayNames[todayIndex] : "Monday";
     
-    switchView('dashboard');
-    selectDay(selectedDay);
-
-    // Disable SW to prevent caching issues
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(regs => {
-            regs.forEach(r => r.unregister());
-        });
-    }
+    navigate('dashboard');
+    initToggleButtons();
 
     // Auto-refresh stocks every 60s
     setInterval(async () => {
@@ -158,11 +151,25 @@ function toggleDrawer() {
 }
 
 function navigate(view, params = {}) {
-    // Update Views
-    document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
-    document.getElementById(`${view}-view`).classList.remove('hidden');
+    currentView = view;
+    
+    // 1. Sidebar/Drawer Auto-Close
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('drawer-overlay');
+    if (sidebar && sidebar.classList.contains('open')) {
+        sidebar.classList.remove('open');
+        if (overlay) {
+            overlay.classList.remove('visible');
+            overlay.classList.add('hidden');
+        }
+    }
 
-    // Update Title
+    // 2. Clear Views
+    document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+    const viewEl = document.getElementById(`${view}-view`);
+    if (viewEl) viewEl.classList.remove('hidden');
+
+    // 3. Update Title
     const titles = {
         'dashboard': 'Dashboard',
         'habits': 'Daily Rituals',
@@ -172,37 +179,58 @@ function navigate(view, params = {}) {
         'tasks': 'Tasks & Notes',
         'expiry': 'Expiry Tracker'
     };
-    document.getElementById('page-title').innerText = titles[view] || 'Stellar';
+    const titleEl = document.getElementById('page-title');
+    if (titleEl) titleEl.innerText = titles[view] || 'Stellar';
 
-    // Update Nav Active State
+    // 4. Update Nav Active State
     document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.remove('active');
-        if (item.innerText.toLowerCase().includes(view)) item.classList.add('active');
+        const idToCheck = `nav-${view}`;
+        if (item.id === idToCheck || item.innerText.toLowerCase().includes(view)) {
+            item.classList.add('active');
+        }
     });
 
-    // Close Drawer
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('drawer-overlay');
-    sidebar.classList.remove('open');
-    if (overlay) {
-        overlay.classList.remove('visible');
-        overlay.classList.add('hidden');
+    // 4b. Update Bottom Nav Active State
+    document.querySelectorAll('.bottom-nav-item').forEach(btn => {
+        btn.classList.remove('active');
+        const onclickAttr = btn.getAttribute('onclick') || '';
+        if (onclickAttr.includes(`'${view}'`)) btn.classList.add('active');
+    });
+    
+    // 5. Toggle Reminder Global Actions
+    const globalActions = document.getElementById('global-reminder-actions');
+    if (globalActions) {
+        if (view === 'reminders') globalActions.classList.remove('hidden');
+        else globalActions.classList.add('hidden');
+    }
+    
+    // 5a. Conditional Header "+" Button
+    const headerAddBtn = document.getElementById('header-add-btn');
+    if (headerAddBtn) {
+        const allowedViews = ['habits', 'reminders', 'stocks', 'expiry'];
+        if (allowedViews.includes(view)) headerAddBtn.classList.remove('hidden');
+        else headerAddBtn.classList.add('hidden');
     }
 
-    if (view === 'reminders') renderFullReminders();
-    if (view === 'dashboard') renderDashboard();
-    if (view === 'expiry') renderExpiryTracker();
+    // 5b. Expiry Alert Visibility
+    const alertContainer = document.getElementById('priority-alert-container');
+    if (alertContainer && view !== 'dashboard' && view !== 'expiry') {
+        alertContainer.innerHTML = '';
+    }
+    
+    // 6. Refresh Data
+    if (view === 'dashboard') { renderDashboard(); renderReminders(); }
     if (view === 'habits') renderHabits();
     if (view === 'attendance') { renderSubjects(); renderAttendanceSummary(); }
     if (view === 'stocks') renderStocks();
+    if (view === 'expiry') renderExpiryTracker();
     if (view === 'tasks') {
         renderTasksBoard();
-        if (params.id) {
+        if (params && params.id) {
             setTimeout(() => openTaskListEditor(params.id), 100);
         }
     }
-    
-    currentView = view;
 }
 
 async function fetchInitialData() {
@@ -304,73 +332,7 @@ async function fetchInitialData() {
 }
 
 // --- Navigation ---
-function switchView(view) {
-    currentView = view;
-    
-    // 1. Sidebar Auto-Close (Mobile Fix v40.0)
-    const sidebar = document.getElementById('sidebar');
-    if (sidebar && sidebar.classList.contains('open')) {
-        toggleDrawer();
-    }
-
-    // 2. Clear Views
-    document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
-    document.getElementById(`${view}-view`).classList.remove('hidden');
-
-    // 3. Update Mobile Header Title
-    const titles = {
-        'dashboard': 'Dashboard',
-        'habits': 'Daily Rituals',
-        'attendance': 'Academy Tracker',
-        'reminders': 'Reminders',
-        'stocks': 'Stock Tracker',
-        'tasks': 'Tasks & Notes'
-    };
-    const titleEl = document.getElementById('page-title');
-    if (titleEl) titleEl.innerText = titles[view] || 'Stellar';
-
-    // 4. Update Nav Active State
-    document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
-    const navBtn = document.getElementById(`nav-${view}`);
-    if (navBtn) navBtn.classList.add('active');
-
-    // 4b. Update Bottom Nav Active State
-    document.querySelectorAll('.bottom-nav-item').forEach(btn => btn.classList.remove('active'));
-    const bottomNavBtn = Array.from(document.querySelectorAll('.bottom-nav-item')).find(btn => btn.getAttribute('onclick').includes(`'${view}'`));
-    if (bottomNavBtn) bottomNavBtn.classList.add('active');
-    
-    // 5. Toggle Global Actions
-    const globalActions = document.getElementById('global-reminder-actions');
-    if (globalActions) {
-        if (view === 'reminders') globalActions.classList.remove('hidden');
-        else globalActions.classList.add('hidden');
-    }
-    
-    // 5a. Conditional Header "+" Button (v60.0)
-    const headerAddBtn = document.getElementById('header-add-btn');
-    if (headerAddBtn) {
-        const allowedViews = ['habits', 'reminders', 'stocks', 'expiry'];
-        if (allowedViews.includes(view)) {
-            headerAddBtn.classList.remove('hidden');
-        } else {
-            headerAddBtn.classList.add('hidden');
-        }
-    }
-
-    // 5b. Expiry Alert Visibility (v61.0)
-    const alertContainer = document.getElementById('priority-alert-container');
-    if (alertContainer && view !== 'dashboard' && view !== 'expiry') {
-        alertContainer.innerHTML = '';
-    }
-    
-    // 6. Refresh Data
-    if (view === 'dashboard') { renderDashboard(); renderReminders(); }
-    if (view === 'habits') renderHabits();
-    if (view === 'attendance') { renderSubjects(); renderAttendanceSummary(); }
-    if (view === 'stocks') renderStocks();
-    if (view === 'tasks') renderTasksBoard();
-}
-
+// switchView consolidated into navigate
 /** 
  * Context-aware Add function for Mobile Header (v45.0)
  */
@@ -573,39 +535,7 @@ function renderDashboard() {
     initToggleButtons();
 }
 
-function renderStocksDashboard() {
-    const list = document.getElementById('stocks-summary');
-    if (!list) return;
-    list.innerHTML = '';
-    
-    if (stocks.length === 0) {
-        list.innerHTML = '<p class="empty-msg">No stocks added yet.</p>';
-        return;
-    }
-
-    stocks.forEach(s => {
-        const cur = s.current_price || s.buy_price;
-        const profit = (cur - s.buy_price) * s.quantity;
-        const perc = ((profit / (s.buy_price * s.quantity)) * 100).toFixed(1);
-        
-        const div = document.createElement('div');
-        div.className = 'ritual-card-mini view-only row-compact';
-        div.style.display = 'flex';
-        div.style.justifyContent = 'space-between';
-        div.innerHTML = `
-            <div class="ritual-info" style="flex:1;">
-                <span class="ritual-name" style="font-weight:700;">${s.name.toUpperCase()}</span>
-                <span style="font-size:0.75rem; color:var(--text-dim); margin-left:8px;">₹${cur}</span>
-            </div>
-            <div class="${profit >= 0 ? 'success-text' : 'error-text'}" style="font-weight:800; font-size:0.95rem;">
-                ${profit >= 0 ? '▲' : '▼'} ${Math.abs(perc)}%
-            </div>
-        `;
-        list.appendChild(div);
-    });
-   
-}
-
+// Duplicate renderStocksDashboard removed (defined at line 1794)
 function getSubjectStats(sub) {
     const manual = manualStats[sub] || { total: 0, attended: 0 };
     // Multi-slot matching: "DSA" matches "DSA 1", "DSA 2", etc.
@@ -722,61 +652,33 @@ async function saveAttendanceDay() {
 function renderAttendanceSummary() {
     const summary = document.getElementById('attendance-summary');
     if (!summary) return;
-
     summary.innerHTML = '';
 
-    const subjectsToRender = [
-        ...new Set([...baseSubs, ...Object.keys(customSubjects)])
-    ];
+    const subjectsToRender = [...new Set([...baseSubs, ...Object.keys(customSubjects)])].sort();
+
 
     subjectsToRender.forEach(sub => {
         const stats = getSubjectStats(sub);
-        const perc = stats.total > 0
-            ? (stats.attended / stats.total * 100).toFixed(1)
-            : 0;
-
+        const perc = stats.total > 0 ? (stats.attended / stats.total * 100).toFixed(1) : 0;
         const card = document.createElement('div');
         card.className = 'glass-card stat-card';
-        card.style.marginBottom = '1rem';
-
+        card.style.marginBottom = '1.2rem';
+        
         card.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                
-                <strong style="font-size:0.95rem;">
-                    ${getSubjectDisplayName(sub, false)}
-                </strong>
-
-                <div style="display:flex; align-items:center; gap:10px;">
-                    
-                    <span style="color:var(--primary); font-weight:800;">
-                        ${perc}%
-                    </span>
-
-                    ${isEditMode ? `
-                        <button 
-                            class="secondary modern-btn" 
-                            style="padding:4px 10px; font-size:0.75rem;"
-                            onclick="openClassSubjectModal('${sub}')"
-                        >
-                            Edit
-                        </button>
-                    ` : ''}
-
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem">
+                <strong>${getSubjectDisplayName(sub, false)}</strong> 
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <span style="color:var(--primary); font-weight:800;">${perc}%</span>
+                    <button class="secondary modern-btn" style="padding:4px 8px; font-size:0.7rem; box-shadow:none;" onclick="openEditAttendanceStats('${sub}')">Edit</button>
                 </div>
             </div>
-
-            <div style="font-size:0.8rem; color:var(--text-dim); margin-top:6px;">
-                Total: ${stats.total} | Attended: ${stats.attended}
+            <div style="font-size:0.85rem;color:var(--text-dim);">
+                <span>Total: ${stats.total} | Attended: ${stats.attended}</span>
             </div>
-
-            <div class="progress-bar" style="height:4px; margin-top:8px; background:rgba(255,255,255,0.05);">
-                <div 
-                    class="progress-fill" 
-                    style="width:${perc}%; height:100%; transition:0.3s;"
-                ></div>
+            <div class="progress-bar" style="height:4px;margin-top:0.8rem;background:rgba(255,255,255,0.05);border-radius:100px;overflow:hidden">
+                <div class="progress-fill" style="width:${perc}%;height:100%;transition:0.3s;background:var(--primary)"></div>
             </div>
         `;
-
         summary.appendChild(card);
     });
 }
@@ -1303,11 +1205,23 @@ function renderHabits() {
                 </div>
                 
                 <div class="habit-actions-group">
-                    ${isMeditation ? `<button class="secondary modern-btn meditation-btn" onclick="toggleMeditationExpansion(event)">${meditationExpanded ? 'Close' : 'Start Session'}</button>` : ''}
-                    <div class="habit-check-v2 ${isDone ? 'done' : ''}" onclick="toggleHabit('${h.id}')">
-                        <div class="check-inner"></div>
-                    </div>
-                </div>
+
+    ${isMeditation ? `
+        <button class="secondary modern-btn meditation-btn"
+            onclick="toggleMeditationExpansion('${h.id}')">
+            🧘
+        </button>
+    ` : ''}
+
+    <div class="habit-check-v2 ${isDone ? 'done' : ''}"
+        onclick="toggleHabit('${h.id}')"
+        title="Mark Done">
+
+        <div class="check-inner"></div>
+
+    </div>
+
+</div>
             </div>
             ${progressHtml}
             ${meditationHtml}
@@ -2088,43 +2002,17 @@ async function deleteTaskItem(id) {
     renderTaskItemsEditor();
     await supabaseClient.from('task_items').delete().eq('id', id);
 }
-document.querySelectorAll('.toggle-btn').forEach((btn) => {
-    btn.addEventListener('click', () => {
-        
-        const card = btn.closest('.dashboard-card');
-
-        const list =
-            card.querySelector('.preview-list') ||
-            card.querySelector('.ritual-cards-container');
-
-        if (!list) return;
-
-        list.classList.toggle('expanded');
-
-        // Rotate arrow
-        if (list.classList.contains('expanded')) {
-            btn.innerHTML = '⌃';
-        } else {
-            btn.innerHTML = '⌄';
-        }
-    });
-});
 
 function initToggleButtons() {
     document.querySelectorAll('.toggle-btn').forEach((btn) => {
         btn.onclick = () => {
-
             const card = btn.closest('.dashboard-card');
-
-            const list =
-                card.querySelector('.preview-list') ||
-                card.querySelector('.ritual-cards-container');
-
+            const list = card.querySelector('.preview-list') || card.querySelector('.ritual-cards-container');
             if (!list) return;
-
             list.classList.toggle('expanded');
-
             btn.innerHTML = list.classList.contains('expanded') ? '⌃' : '⌄';
         };
     });
 }
+
+// End of app script
