@@ -165,6 +165,8 @@ function navigate(view, params = {}) {
     // 2. Clear Views
     document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
     document.getElementById(`${view}-view`)?.classList.remove('hidden');
+    document.body.className = `view-${view}`;
+    if (view === 'dashboard') document.body.classList.add('mobile-first');
 
     // 3. Update Title
     const titles = {
@@ -319,35 +321,38 @@ async function fetchInitialData() {
  * Context-aware Add function for Mobile Header (v45.0)
  */
 function handleAdd() {
-    const currentView = document.querySelector('.view:not(.hidden)')?.id;
+    const activeView = currentView; // Use state variable
 
-    switch (currentView) {
-        case 'habits-view':
-            openHabitModal();
+    switch (activeView) {
+        case 'habits':
+            openModal();
             break;
 
-        case 'tasks-view':
-            openTaskEditor(); // or your existing task modal function
+        case 'tasks':
+            createNewTaskList();
             break;
 
-        case 'reminders-view':
+        case 'reminders':
             openReminderModal();
             break;
 
-        case 'expiry-view':
+        case 'expiry':
             openExpiryModal();
             break;
 
-        case 'stocks-view':
+        case 'stocks':
             openStockModal();
             break;
 
-        case 'attendance-view':
+        case 'attendance':
+            // Logic for adding a custom subject if needed, 
+            // but user asked for "Add" button to work.
+            // For academy, we can open the subject modal.
             openClassSubjectModal();
             break;
 
         default:
-            console.log('No add action for this page');
+            console.log('No add action for dashboard');
     }
 }
 
@@ -533,21 +538,26 @@ function renderDashboard() {
             div.style.marginBottom = '1rem';
             div.dataset.subject = sub;
 
+            const displayName = getSubjectDisplayName(sub, false);
+            const secondaryText = getSubjectType(sub);
+
             div.innerHTML = `
-            <div class="subject-info" style="cursor:pointer;" onclick="openClassSubjectModal('${sub}')" title="Click to rename subject">
-                <span class="subject-name">${getSubjectDisplayName(sub)}</span>
-                <span class="subject-slot">${getSubjectType(sub)}</span>
+            <div class="subject-info" style="cursor:pointer;" onclick="openClassSubjectModal('${sub}')">
+                <div class="subject-title-stack">
+                    <span class="subject-name">${displayName}</span>
+                    <span class="subject-secondary">${secondaryText}</span>
+                </div>
             </div>
             <div class="check-inputs">
-                <div class="toggle-group" style="display:flex; flex-direction:column; align-items:center; gap:0.4rem;">
-                    <span class="toggle-label" style="font-size:0.75rem; color:var(--text-dim); margin-bottom: 2px;">Class Happened</span>
+                <div class="toggle-group">
+                    <span class="toggle-label">Class</span>
                     <label class="toggle-switch">
                         <input type="checkbox" class="class-happened" onchange="validateCheck(this)" ${locked ? 'disabled' : ''}>
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
-                <div class="toggle-group" style="display:flex; flex-direction:column; align-items:center; gap:0.4rem;">
-                    <span class="toggle-label" style="font-size:0.75rem; color:var(--text-dim); margin-bottom: 2px;">Attended</span>
+                <div class="toggle-group">
+                    <span class="toggle-label">Done</span>
                     <label class="toggle-switch">
                         <input type="checkbox" class="attended" disabled onchange="handleMutual(this, '${sub}')" ${locked ? 'disabled' : ''}>
                         <span class="toggle-slider"></span>
@@ -637,20 +647,21 @@ function renderDashboard() {
             const perc = stats.total > 0 ? (stats.attended / stats.total * 100).toFixed(1) : 0;
             const card = document.createElement('div');
             card.className = 'glass-card stat-card';
-            card.style.marginBottom = '1.2rem';
+            card.style.marginBottom = '1rem';
 
             card.innerHTML = `
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem">
-                <strong>${getSubjectDisplayName(sub, false)}</strong> 
-                <div style="display:flex; gap:10px; align-items:center;">
-                    <span style="color:var(--primary); font-weight:800;">${perc}%</span>
-                    <button class="secondary modern-btn" style="padding:4px 8px; font-size:0.7rem; box-shadow:none;" onclick="openEditAttendanceStats('${sub}')">Edit</button>
-                </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <strong class="stat-name">${getSubjectDisplayName(sub, false)}</strong> 
+                <span style="color:var(--primary); font-weight:800; font-size:1.1rem;">${perc}%</span>
             </div>
-            <div style="font-size:0.85rem;color:var(--text-dim);">
-                <span>Total: ${stats.total} | Attended: ${stats.attended}</span>
+            <div style="font-size:0.8rem;color:var(--text-dim); margin: 4px 0;">
+                <span>T: ${stats.total} | A: ${stats.attended}</span>
             </div>
-            <div class="progress-bar" style="height:4px;margin-top:0.8rem;background:rgba(255,255,255,0.05);border-radius:100px;overflow:hidden">
+            ${editMode ? `
+            <div style="margin-top:10px; display:flex; justify-content:flex-end;">
+                <button class="secondary modern-btn compact-edit-btn" onclick="openEditAttendanceStats('${sub}')">Edit Stats</button>
+            </div>` : ''}
+            <div class="progress-bar" style="height:4px;margin-top:8px;background:rgba(255,255,255,0.05);border-radius:100px;overflow:hidden">
                 <div class="progress-fill" style="width:${perc}%;height:100%;transition:0.3s;background:var(--primary)"></div>
             </div>
         `;
@@ -682,12 +693,22 @@ function renderDashboard() {
         saveAndSync('manual_stats', manualStats); renderAttendanceSummary(); renderDashboard();
     }
 
-    function openClassSubjectModal(sub) {
+    function openClassSubjectModal(sub = null) {
         editingSubjectOriginalName = sub;
         const m = document.getElementById('class-subject-modal');
         if (!m) return;
-        document.getElementById('class-subject-name').value = customSubjects[sub]?.name || sub;
-        document.getElementById('class-subject-type').value = customSubjects[sub]?.type || 'Lecture';
+        
+        const titleInput = document.getElementById('class-subject-name');
+        const typeInput = document.getElementById('class-subject-type');
+        
+        if (sub) {
+            titleInput.value = customSubjects[sub]?.name || sub;
+            typeInput.value = customSubjects[sub]?.type || 'Lecture';
+        } else {
+            titleInput.value = '';
+            typeInput.value = '';
+        }
+        
         m.classList.remove('hidden');
         m.classList.add('visible');
     }
@@ -1020,14 +1041,14 @@ function renderDashboard() {
         card.className = `habit-card-v2 glass-card ${isDone ? 'completed' : ''}`;
 
         card.innerHTML = `
-        <div class="habit-main-row" onclick="openCalendarFor('${h.id}')">
+        <div class="habit-main-row" onclick="openCalendarFor('${h.id}')" style="flex:1;">
             <div class="habit-info-group">
                 <span class="habit-name">${h.name}</span>
-                <span class="streak-pill">🔥 ${currentStreak}</span>
+                <span class="streak-pill" style="margin-top:4px;">🔥 ${currentStreak}</span>
             </div>
         </div>
         <div class="habit-check-v2 ${isDone ? 'done' : ''}" onclick="event.stopPropagation(); toggleHabit('${h.id}')">
-            <div class="check-inner"></div>
+            ${isDone ? '✓' : ''}
         </div>
     `;
         return card;

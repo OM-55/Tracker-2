@@ -2478,203 +2478,203 @@ h3 {
 }
 
 /* ============================================================
-   ULTRA MOBILE UI/UX (v80.0 PREMIUM)
+   ULTRA MOBILE UI/UX (v90.0 PREMIUM)
    ============================================================ */
 @media (max-width: 768px) {
     :root {
-        --radius-lg: 16px;
-        --radius-md: 12px;
+        --radius-lg: 14px;
+        --radius-md: 10px;
     }
 
     html, body {
         width: 100%;
         overflow-x: hidden !important;
         position: relative;
-        touch-action: pan-y;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    #app-container {
-        width: 100%;
-        overflow-x: hidden;
     }
 
     #app-main {
         margin-left: 0 !important;
         margin-top: 56px !important;
-        padding: 12px 14px 120px 14px !important;
+        padding: 10px 12px 100px 12px !important;
         width: 100%;
         max-width: 100vw;
-        height: auto;
         overflow-x: hidden;
-        display: block;
     }
 
+    /* Task 10: Global Spacing Reduction */
     .view {
         padding: 0 !important;
         width: 100% !important;
-        max-width: 100% !important;
     }
 
-    /* Top Navbar Refinement */
-    #top-navbar {
-        height: 56px !important;
-        background: rgba(7, 7, 8, 0.9);
-        backdrop-filter: blur(30px);
-        -webkit-backdrop-filter: blur(30px);
-        padding: 0 16px !important;
-        display: flex !important;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    #page-title {
-        font-size: 1.1rem !important;
-        font-weight: 800 !important;
-        text-align: center;
-        flex: 1;
-        margin-left: -20px; /* Offset to center under the burger */
-    }
-
-    #menu-toggle {
-        font-size: 1.5rem !important;
-        margin-right: 0 !important;
-    }
-
-    /* Bottom Nav Activation */
-    #bottom-nav {
-        display: flex !important;
-    }
-
-    /* Dashboard Grid -> Stack */
+    h2 { font-size: 1.1rem !important; margin-bottom: 8px !important; }
+    
     .dashboard-grid {
         display: grid !important;
         grid-template-columns: 1fr !important;
-        gap: 12px !important;
-        width: 100%;
+        gap: 8px !important;
     }
 
-    .dashboard-card,
-    .glass-card,
-    .summary-card {
-        padding: 16px !important;
-        min-height: auto !important;
-        margin-bottom: 0 !important;
-        border-radius: var(--radius-lg) !important;
-        width: 100% !important;
+    .dashboard-card, .glass-card, .summary-card {
+        padding: 10px 12px !important;
+        border-radius: var(--radius-md) !important;
     }
 
-    /* Card Header Polish */
     .card-header {
-        padding-bottom: 12px !important;
-        margin-bottom: 12px !important;
+        padding-bottom: 8px !important;
+        margin-bottom: 8px !important;
     }
 
-    .card-header h3 {
-        font-size: 0.85rem !important;
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-        font-weight: 800 !important;
-        color: var(--text-dim);
+    #app-main {
+        padding-top: 8px !important;
     }
 
-    /* Habit Cards - Modernized */
-    .habit-card-v2 {
-        flex-direction: row !important;
-        align-items: center !important;
-        padding: 14px 16px !important;
-        gap: 12px !important;
-        min-height: 72px !important;
-        border-radius: 18px !important;
-        margin-bottom: 10px !important;
-    }
-
-    .habit-info-group .habit-name {
-        font-size: 1.15rem !important;
-        letter-spacing: -0.01em !important;
-    }
-
-    .habit-stats-group {
-        min-width: unset !important;
-        align-items: flex-start !important;
-        gap: 4px !important;
-    }
-
-    /* Circle Check Button */
-    .habit-check-v2 {
-        width: 52px !important;
-        height: 52px !important;
-        border-radius: 50% !important;
-        border: 2px solid rgba(255,255,255,0.1) !important;
-        background: rgba(255, 255, 255, 0.05);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    .habit-check-v2.done {
-        background: var(--success) !important;
-        border-color: var(--success) !important;
-        box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
-    }
-
-    /* Academy Tracker Sticky */
-    #class-tracker-wrapper {
-        position: relative !important;
-        margin-bottom: 16px;
-    }
-
-    .day-selector {
-        gap: 6px !important;
-        margin-bottom: 12px !important;
-        justify-content: space-between;
-    }
-
-    .day-btn {
-        flex: 1;
-        font-size: 0.75rem !important;
-        font-weight: 700 !important;
-        padding: 10px 0 !important;
-        border-radius: 12px !important;
-    }
-
-    /* Modal Adjustments */
-    .modal {
-        padding: 16px !important;
-    }
-
-    .modal-content {
-        padding: 24px !important;
-        border-radius: 24px !important;
-        max-height: 85vh !important;
-    }
-
-    /* Hide redundant elements */
-    .desktop-only,
-    .mobile-hidden,
-    .fab-btn-tasks {
+    /* Task 3 & 10: Dashboard */
+    #dashboard-view #global-fab,
+    #dashboard-view .header-add-btn {
         display: none !important;
     }
 
+    /* Task 4: Daily Rituals (Habits) */
+    #habits-view .content-stack {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+        width: 100% !important;
+        overflow-x: hidden !important;
+    }
+
+    .habit-card-v2 {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex-direction: row !important;
+        padding: 10px 14px !important;
+        min-height: 60px !important;
+        height: auto !important;
+        margin-bottom: 0 !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 12px !important;
+    }
+
+    .habit-info-group .habit-name {
+        font-size: 1rem !important;
+        font-weight: 700 !important;
+    }
+
+    .habit-check-v2 {
+        width: 36px !important;
+        height: 36px !important;
+        border-width: 1.5px !important;
+    }
+
+    /* Task 5: Academy Summary */
+    .stat-card {
+        padding: 12px 16px !important;
+    }
+
+    .stat-name {
+        font-size: 0.95rem !important;
+        font-weight: 700 !important;
+    }
+
+    .compact-edit-btn {
+        padding: 4px 8px !important;
+        font-size: 0.7rem !important;
+        min-width: unset !important;
+    }
+
+    /* Task 6: Days (MTWTF) */
+    .day-selector {
+        gap: 4px !important;
+        margin-bottom: 10px !important;
+        display: flex !important;
+    }
+
+    .day-btn {
+        padding: 6px 0 !important;
+        font-size: 0.75rem !important;
+        border-radius: 8px !important;
+    }
+
+    /* Task 7: Class Cards */
+    .subject-row {
+        padding: 10px 14px !important;
+        min-height: 50px !important;
+        margin-bottom: 8px !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+    }
+
+    .subject-title-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .subject-name {
+        font-size: 0.95rem !important;
+        font-weight: 700 !important;
+    }
+
+    .subject-secondary {
+        font-size: 0.75rem !important;
+        color: var(--text-dim) !important;
+    }
+
+    .check-inputs {
+        gap: 10px !important;
+    }
+
+    .toggle-group {
+        gap: 2px !important;
+    }
+
+    .toggle-label {
+        font-size: 0.65rem !important;
+    }
+
+    /* Task 9: Expiry Tracker */
+    .expiry-card {
+        padding: 10px 14px !important;
+        min-height: 50px !important;
+        margin-bottom: 8px !important;
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+    }
+
+    .exp-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .exp-name { font-size: 0.95rem !important; font-weight: 700 !important; }
+    .exp-days { font-size: 0.75rem !important; color: var(--text-dim) !important; }
+
+    .expiry-card .delete-btn-modern {
+        font-size: 1.1rem !important;
+        padding: 4px !important;
+        margin-left: 10px;
+    }
+
+    /* Task 1: Tasks Page Add Button */
     #global-fab {
         bottom: 100px !important;
         right: 20px !important;
-        width: 56px !important;
-        height: 56px !important;
-        border-radius: 18px !important; /* Squircle FAB */
+        width: 50px !important;
+        height: 50px !important;
+        border-radius: 14px !important;
+        font-size: 1.8rem !important;
     }
 
-    /* Attendance View Specific Fix */
-    #attendance-view .content-stack {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 16px !important;
-    }
-
-    /* Task Cards */
-    .task-card {
-        height: 180px !important;
+    /* Hide Top Nav Add Button on Dashboard (Task 3) */
+    body.view-dashboard #top-navbar .header-icon-btn {
+        display: none !important;
     }
 }
 
