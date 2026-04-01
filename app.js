@@ -646,23 +646,21 @@ function renderDashboard() {
             const stats = getSubjectStats(sub);
             const perc = stats.total > 0 ? (stats.attended / stats.total * 100).toFixed(1) : 0;
             const card = document.createElement('div');
-            card.className = 'glass-card stat-card';
-            card.style.marginBottom = '1rem';
+            card.className = 'glass-card stat-card compact-stat-card';
 
             card.innerHTML = `
-            <div style="display:flex;justify-content:space-between;align-items:center;">
-                <strong class="stat-name">${getSubjectDisplayName(sub, false)}</strong> 
-                <span style="color:var(--primary); font-weight:800; font-size:1.1rem;">${perc}%</span>
+            <div class="stat-main-row">
+                <div class="stat-title-group">
+                    <strong class="stat-name">${getSubjectDisplayName(sub, false)}</strong>
+                    <span class="stat-nums">T:${stats.total} A:${stats.attended}</span>
+                </div>
+                <div class="stat-right-group">
+                    <span class="stat-perc">${perc}%</span>
+                    ${editMode ? `<button class="text-link compact-edit-btn" onclick="openEditAttendanceStats('${sub}')">Edit</button>` : ''}
+                </div>
             </div>
-            <div style="font-size:0.8rem;color:var(--text-dim); margin: 4px 0;">
-                <span>T: ${stats.total} | A: ${stats.attended}</span>
-            </div>
-            ${editMode ? `
-            <div style="margin-top:10px; display:flex; justify-content:flex-end;">
-                <button class="secondary modern-btn compact-edit-btn" onclick="openEditAttendanceStats('${sub}')">Edit Stats</button>
-            </div>` : ''}
-            <div class="progress-bar" style="height:4px;margin-top:8px;background:rgba(255,255,255,0.05);border-radius:100px;overflow:hidden">
-                <div class="progress-fill" style="width:${perc}%;height:100%;transition:0.3s;background:var(--primary)"></div>
+            <div class="progress-bar mini-line">
+                <div class="progress-fill" style="width:${perc}%"></div>
             </div>
         `;
             summary.appendChild(card);
@@ -919,20 +917,24 @@ function renderDashboard() {
         const items = limit ? expiryItems.slice(0, limit) : expiryItems;
 
         if (items.length === 0) {
-            list.innerHTML = '<div class="empty-state-modern">No items tracked.</div>';
+            list.innerHTML = '<div class="empty-msg">No items tracked.</div>';
             return;
         }
 
         items.forEach(item => {
             const daysLeft = calculateDaysLeft(item.createdAt, item.initialDays);
+            const status = daysLeft > 3 ? "GOOD" : "EXPIRED";
             const card = document.createElement('div');
-            card.className = `expiry-card glass-card`;
+            card.className = `expiry-card glass-card one-row`;
             card.innerHTML = `
-            <div class="exp-info">
+            <div class="exp-left">
                 <span class="exp-name">${item.name}</span>
-                <span class="exp-days">${daysLeft} days left</span>
+                <span class="exp-days">${daysLeft}d left</span>
             </div>
-            <button class="delete-btn-modern" onclick="deleteExpiryItem('${item.id}')">🗑</button>
+            <div class="exp-right">
+                <span class="status-badge ${status.toLowerCase()}">${status}</span>
+                <button class="delete-btn-mini" onclick="deleteExpiryItem('${item.id}')">🗑</button>
+            </div>
         `;
             list.appendChild(card);
         });
@@ -1041,14 +1043,14 @@ function renderDashboard() {
         card.className = `habit-card-v2 glass-card ${isDone ? 'completed' : ''}`;
 
         card.innerHTML = `
-        <div class="habit-main-row" onclick="openCalendarFor('${h.id}')" style="flex:1;">
+        <div class="habit-main-row" onclick="openCalendarFor('${h.id}')" style="flex:1; display:flex; align-items:center; justify-content:space-between;">
             <div class="habit-info-group">
                 <span class="habit-name">${h.name}</span>
-                <span class="streak-pill" style="margin-top:4px;">🔥 ${currentStreak}</span>
+                <span class="ritual-streak-inline">🔥 ${currentStreak}</span>
             </div>
-        </div>
-        <div class="habit-check-v2 ${isDone ? 'done' : ''}" onclick="event.stopPropagation(); toggleHabit('${h.id}')">
-            ${isDone ? '✓' : ''}
+            <div class="habit-check-v2 ${isDone ? 'done' : ''}" onclick="event.stopPropagation(); toggleHabit('${h.id}')">
+                ${isDone ? '✓' : '✧'}
+            </div>
         </div>
     `;
         return card;
@@ -1725,7 +1727,7 @@ function renderDashboard() {
                 const list = card.querySelector('.preview-list') || card.querySelector('.ritual-cards-container');
                 if (!list) return;
                 list.classList.toggle('expanded');
-                btn.innerHTML = list.classList.contains('expanded') ? '⌃' : '⌄';
+                btn.innerHTML = list.classList.contains('expanded') ? 'Collapse' : 'View All';
             };
         });
     }

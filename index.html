@@ -78,7 +78,7 @@
                             <h3>Daily Rituals</h3>
                         </div>
                         <div id="habits-preview-list" class="ritual-cards-container collapsed"></div>
-                        <div class="card-footer"><button class="text-link toggle-btn">⌄</button></div>
+                        <div class="card-footer"><button class="view-all-btn text-link toggle-btn">View All</button></div>
                     </div>
 
                     <!-- 2. Reminders -->
@@ -86,8 +86,8 @@
                         <div class="card-header">
                             <h3>Reminders</h3>
                         </div>
-                        <div id="dashboard-reminders" class="summary-list preview-list  collapsed"></div>
-                        <div class="card-footer"><button class="text-link toggle-btn">⌄</button></div>
+                        <div id="dashboard-reminders" class="summary-list preview-list collapsed"></div>
+                        <div class="card-footer"><button class="view-all-btn text-link toggle-btn">View All</button></div>
                     </div>
 
                     <!-- 3. Expiry Tracker -->
@@ -96,7 +96,7 @@
                             <h3>Expiry Tracker</h3>
                         </div>
                         <div id="dashboard-expiry-list" class="summary-list preview-list collapsed"></div>
-                        <div class="card-footer"><button class="text-link toggle-btn">⌄</button></div>
+                        <div class="card-footer"><button class="view-all-btn text-link toggle-btn">View All</button></div>
                     </div>
 
                     <!-- 4. Tasks -->
@@ -105,7 +105,7 @@
                             <h3>Tasks & Notes</h3>
                         </div>
                         <div id="dashboard-tasks-list" class="summary-list preview-list collapsed"></div>
-                        <div class="card-footer"><button class="text-link toggle-btn">⌄</button></div>
+                        <div class="card-footer"><button class="view-all-btn text-link toggle-btn">View All</button></div>
                     </div>
 
                     <!-- 5. Academy -->
@@ -115,7 +115,7 @@
                             <span id="overall-attendance-badge" class="badge">0% Overall</span>
                         </div>
                         <div id="attendance-preview-list" class="preview-list academy-list collapsed"></div>
-                        <div class="card-footer"><button class="text-link toggle-btn">⌄</button></div>
+                        <div class="card-footer"><button class="view-all-btn text-link toggle-btn">View All</button></div>
                     </div>
 
                     <!-- 6. Stocks -->
@@ -124,7 +124,7 @@
                             <h3>Stock Market</h3>
                         </div>
                         <div id="stocks-summary" class="summary-list preview-list collapsed"></div>
-                        <div class="card-footer"><button class="text-link toggle-btn">⌄</button></div>
+                        <div class="card-footer"><button class="view-all-btn text-link toggle-btn">View All</button></div>
                     </div>
                 </div>
             </section>
@@ -136,10 +136,12 @@
 
                 </div>
                 <div class="stats-wrapper">
-                    <div id="today-stats" class="stats-banner glass-card compact-stats">
-                        <span id="completed-count">0</span> / <span id="total-count">0</span> Done Today
-                        <div class="progress-bar mini">
-                            <div id="daily-progress" class="progress-fill" style="width: 0%"></div>
+                    <div id="today-stats" class="stats-banner glass-card compact-stats-box">
+                        <div class="stats-content-mini">
+                            <span class="stats-line"><span id="completed-count">0</span> / <span id="total-count">0</span> DONE TODAY</span>
+                            <div class="progress-bar mini-line">
+                                <div id="daily-progress" class="progress-fill" style="width: 0%"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -191,7 +193,7 @@
                     <h2>Reminders</h2>
 
                 </div>
-                <div class="reminders-container" style="position: relative; min-height: 400px;">
+                <div class="reminders-container" style="position: relative;">
                     <div id="full-reminders-list" class="reminders-full-list content-stack"></div>
                     <div id="completed-reminders-section" class="reminders-section hidden">
                         <h3 onclick="toggleCompletedReminders()" style="cursor: pointer;">✅ Completed <span
